@@ -30,8 +30,6 @@ function App() {
     setInputs((values) => ({ ...values, [name]: value }));
   };
 
-  console.log(inputs);
-
   const qty = form?.getFieldsValue()?.products?.map((data) => {
     return data.qty;
   });
