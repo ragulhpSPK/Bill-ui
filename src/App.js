@@ -91,7 +91,7 @@ function App() {
               <br />
               Mode Of Payment:{payment}
               <br />
-              Terms of Delivery:
+              Terms of Delivery:{inputs.terms}
             </td>
           </tr>
           <tr>
@@ -218,8 +218,13 @@ function App() {
                 <Select.Option value="tn46bw1345">tn46bw1345</Select.Option>
               </Select>
             </Form.Item>
-            <Form.Item label="Terms Of Delivery" name="invoiceno">
-              <Input type="text" name="terms" placeholder="terms of delivery" />
+            <Form.Item label="Terms Of Delivery" name="terms">
+              <Input
+                type="text"
+                name="terms"
+                placeholder="terms of delivery"
+                onChange={handleChange}
+              />
             </Form.Item>
             <Form.Item label="Customer">
               <Select
