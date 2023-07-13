@@ -25,8 +25,6 @@ function App() {
   const [datas, setDatas] = useState("");
   const [charge, setCharge] = useState("");
 
-  console.log(process.env.STATUS);
-
   const handlePayment = (value) => {
     setPayment(value);
   };
@@ -67,7 +65,7 @@ function App() {
       products: value.products,
     };
     const result = await axios.post(
-      `${process.env.REACT_APP_LOCAL_URI}`,
+      `${process.env.REACT_APP_LOCAL_URI}/create`,
       formData
     );
     notification.success({ message: "Bill created successfully" });
