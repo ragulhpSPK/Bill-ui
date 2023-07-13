@@ -1,9 +1,19 @@
-import { Button, DatePicker, Form, Input, Select, Space } from "antd";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  Select,
+  Space,
+  notification,
+} from "antd";
 import "./App.css";
 import { MinusCircleOutlined } from "@ant-design/icons";
-import { useState } from "react";
-import { sum } from "lodash";
+import { useEffect, useState } from "react";
+import { isEmpty, sum } from "lodash";
 import moment from "moment/moment";
+import axios from "axios";
+import { flatten } from "lodash";
 
 function App() {
   const [inputs, setInputs] = useState([]);
@@ -12,6 +22,10 @@ function App() {
   const [vehicle, setVehicle] = useState("");
   const [form] = Form.useForm();
   const [date, setDate] = useState("");
+  const [datas, setDatas] = useState("");
+  const [charge, setCharge] = useState("");
+
+  console.log(process.env.STATUS);
 
   const handlePayment = (value) => {
     setPayment(value);
@@ -20,9 +34,48 @@ function App() {
   const handleDestination = (val) => {
     setDestination(val);
   };
+
   const handleVehicle = (val) => {
     setVehicle(val);
   };
+
+  const handleCharge = (val) => {
+    setCharge(val.target.checked);
+  };
+
+  const fetchData = async () => {
+    try {
+      const result = await axios.get(`${process.env.REACT_APP_LOCAL_URI}`);
+      setDatas(result.data.message[0]);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const handleFinish = async (value) => {
+    const flattenarr = flatten(value.products);
+    console.log(flattenarr);
+    const formData = {
+      invoiceno: value.invoiceno,
+      payment: payment,
+      dispatch: vehicle,
+      terms: value.terms,
+      destination: desstination,
+      address: value.address,
+      gstin: value.gstin,
+      charge: charge,
+      products: value.products,
+    };
+    const result = await axios.post(
+      `${process.env.REACT_APP_LOCAL_URI}`,
+      formData
+    );
+    notification.success({ message: "Bill created successfully" });
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleChange = (e) => {
     const name = e.target.name;
@@ -35,7 +88,7 @@ function App() {
   });
   const newList = qty?.map((string) => parseInt(string));
 
-  const amnt = form?.getFieldsValue()?.products?.map((data) => {
+  var amnt = form?.getFieldsValue()?.products?.map((data) => {
     return data.qty * data.Rate;
   });
 
@@ -113,7 +166,7 @@ function App() {
                 <td class="border border-slate-300 ... pl-5">{data.qty}</td>
                 <td class="border border-slate-300 ... pl-5">{data.Rate}</td>
                 <td class="border border-slate-300 ... pl-5">
-                  {data.qty * data.Rate}
+                  {data.qty * data.Rate > 0 ? data.qty * data.Rate : ""}
                 </td>
               </tr>
             );
@@ -142,9 +195,13 @@ function App() {
               Grand Total:
             </td>
 
-            <td class="border border-slate-300 ... pl-5">{sum(newList)}</td>
+            <td class="border border-slate-300 ... pl-5">
+              {sum(newList) > 0 ? sum(newList) : ""}
+            </td>
             <td class="border border-slate-300 ... pl-5"></td>
-            <td class="border border-slate-300 ... pl-5">{sum(amnt)}</td>
+            <td class="border border-slate-300 ... pl-5">
+              {amnt > 0 ? sum(amnt) : ""}
+            </td>
           </tr>
 
           <tr>
@@ -196,7 +253,12 @@ function App() {
       </table>
       <div className="pt-3 flex flex-col">
         <p className="text-center">This is computed generate invoice</p>
-        <Form layout="vertical " className="!w-[80vw] m-auto" form={form}>
+        <Form
+          layout="vertical "
+          className="!w-[80vw] m-auto"
+          form={form}
+          onFinish={handleFinish}
+        >
           <div className="grid grid-cols-5  pt-5 gap-x-36 gap-y-12 ">
             <Form.Item label="Invoice no" name="invoiceno">
               <Input type="text" name="invoiceno" onChange={handleChange} />
@@ -241,7 +303,7 @@ function App() {
               <Input type="text" name="gstin" onChange={handleChange} />
             </Form.Item>
             <Form.Item label="Includes transportation charge">
-              <Input type="checkbox" />
+              <Input type="checkbox" name="charge" onChange={handleCharge} />
             </Form.Item>
           </div>
 
@@ -319,6 +381,9 @@ function App() {
               </>
             )}
           </Form.List>
+          <Button htmlType="submit" className="bg-blue-700 !w-[7vw] text-white">
+            Submit
+          </Button>
         </Form>
       </div>
     </div>
