@@ -119,8 +119,8 @@ function Bill({ updateId, data, fetchData, setOpen }) {
   };
 
   return (
-    <div className="w-screen h-screen  flex flex-col items-center pt-[10vh] justify-start">
-      <table class=" w-[80vw] border border-slate-300 ...">
+    <div className="h-screen  flex flex-col items-center pt-[10vh] justify-start">
+      <table class="w-[80vw]  border border-slate-300 ...">
         <thead>
           <tr>
             <th
